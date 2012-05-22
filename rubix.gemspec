@@ -4,7 +4,7 @@ lib  = File.join(root, 'lib')
 $:.unshift lib unless $:.include?(lib)
 
 Gem::Specification.new do |s|
-  s.name         = 'rubix'
+  s.name         = 'wp-rubix'
   s.version      = File.read(File.join(root, 'VERSION')).strip
   s.platform     = Gem::Platform::RUBY
   s.authors      = ['Dhruv Bansal']
