@@ -1,3 +1,6 @@
+require 'gemtools/rake_task'
+Gemtools::RakeTask.install_tasks
+
 $LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
 
 desc "Build rubix"
