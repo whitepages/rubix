@@ -3,6 +3,7 @@ require 'cgi'
 require 'net/http'
 require 'net/https'
 require 'json'
+require 'http_configuration'
 
 require 'rubix/log'
 
@@ -39,6 +40,10 @@ module Rubix
     # @return [String] the password of the Zabbix account used to authenticate
     attr_reader :password
 
+    # @return [Integer] http timeout in seconds, used to override the default Net::HTTP timeout, 
+    # this is useful for large templates which cause zabbix to spin longer than normal
+    attr_reader :timeout
+
     # @return [Rubix::Response] the last response from the Zabbix API -- useful for logging purposes
     attr_reader :last_response
     
@@ -53,12 +58,14 @@ module Rubix
     # @param [URI,String] uri_or_string the address of the Zabbix API server to connect to
     # @param [String] username the username of an existing Zabbix API <tt>User</tt> account with API access
     # @param [String] password the password for this account
-    def initialize uri_or_string, username=nil, password=nil
+    # @param [Integer] optional timeout value to override the HTTP server object with
+    def initialize uri_or_string, username=nil, password=nil, timeout=nil
+      @timeout    = timeout  || 0
       self.uri    = uri_or_string
       @username   = username || uri.user
       @password   = password || uri.password
       @request_id = 0
-    end
+   end
 
     # Send a request to the Zabbix API.  Will return a Rubix::Response
     # object.
@@ -127,7 +134,14 @@ module Rubix
         string = uri_or_string =~ /^http/ ? uri_or_string : 'http://' + uri_or_string.to_s
         @uri = URI.parse(string)
       end
-      @server = Net::HTTP.new(uri.host, uri.port)
+      if !@timeout.nil? and @timeout > 0 then
+	config = Net::HTTP::Configuration.new(:read_timeout => @timeout)
+	config.apply do
+	  @server = Net::HTTP.new(uri.host,uri.port)
+	end
+      else
+        @server = Net::HTTP.new(uri.host, uri.port)
+      end
       if uri.scheme == "https" then
 	server.use_ssl = true
 	server.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -209,6 +223,8 @@ module Rubix
         raw_response = server.request(raw_web_request(verb, path, data))
       rescue NoMethodError, Errno::ECONNREFUSED, SocketError => e
         raise RequestError.new("Could not connect to the Zabbix server at #{host_with_port}")
+      rescue TimeoutError, Timeout::Error, SocketError => e
+	raise RequestError.new("Connection timed out to the Zabbix server at #{host_with_port}")
       end
     end
     

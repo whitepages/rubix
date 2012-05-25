@@ -26,9 +26,10 @@ module Rubix
   # @param [URI,String] server the address of the Zabbix API server to connect to
   # @param [String] username the username of an existing Zabbix API <tt>User</tt> account with API access
   # @param [String] password the password for this account
+  # @param [Integer] timeout, override default net/http timeout for large template imports
   # @return [Rubix::Connection]
-  def self.connect server, username=nil, password=nil
-    self.connection = Connection.new(server, username, password)
+  def self.connect server, username=nil, password=nil, timeout=nil
+    self.connection = Connection.new(server, username, password, timeout)
   end
 
   # Explicitly set the connection using a <tt>Rubix::Connection</tt>
