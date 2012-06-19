@@ -56,7 +56,7 @@ module Rubix
     # == Validations ==
     #
     def validate
-      super()
+      raise ValidationError.new("An action must define the event_source, default is :triggers") if :event_source.nil?
       raise ValidationError.new("An action must have at least one operation defined.") if operations.empty?
       operations.each do |operation|
         return false unless operation.validate

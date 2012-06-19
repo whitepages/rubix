@@ -83,6 +83,14 @@ module Rubix
     include Associations::BelongsToMediaType
 
     #
+    # == Validations ==
+    #
+    
+    def validate
+      raise ValidationError.new("An operation must define the :type, default is :message") if :message.nil?
+      true
+    end
+    #
     # == Requests ==
     #
 

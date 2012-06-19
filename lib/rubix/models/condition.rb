@@ -72,6 +72,17 @@ module Rubix
     end
     
     #
+    # == Validations ==
+    #
+
+    def validate
+      raise ValidationError.new("A Condition must define the :type") if :type.nil?
+      raise ValidationError.new("A Condition must define the :operator, default is :and_or") if :operator.nil?
+      raise ValidationError.new("A Condition must define the :value") if :value.nil?
+      true
+    end
+
+    #
     # == Requests ==
     #
 
