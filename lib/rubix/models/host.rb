@@ -32,6 +32,10 @@ module Rubix
     zabbix_attr :status
     zabbix_attr :use_ip,    :default => true
     zabbix_attr :monitored, :default => true
+    zabbix_attr :available
+    zabbix_attr :error
+    zabbix_attr :errors_from
+    zabbix_attr :lastaccess
     
     def initialize properties={}
       super(properties)
@@ -148,7 +152,11 @@ module Rubix
             # Otherwise it's either '0' for monitored and ok or
             # something else for monitored and *not* ok.
             :monitored      => (host['status'].to_i == 1 ? false : true),
-            :status         => self::STATUS_NAMES[host['status'].to_i]
+            :status         => self::STATUS_NAMES[host['status'].to_i],
+            :available      => host['available'],
+            :error          => host['error'],
+            :errors_from    => host['errors_from'],
+            :lastaccess     => host['lastaccess']
           })
     end
     
